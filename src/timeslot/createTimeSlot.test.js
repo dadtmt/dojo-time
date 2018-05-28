@@ -24,13 +24,10 @@ describe("createTimeSlot", () => {
   });
 });
 
-const createDayTimeSlots = (startTime, endTime) => {
-  const arrayTime = [];
-  for (let t = startTime; t < endTime; t = t.plus({ minutes: 15 })) {
-    arrayTime.push(createTimeSlot(Interval.after(t, { minutes: 15 })));
-  }
-  return arrayTime;
-};
+const createDayTimeSlots = (startTime, endTime) =>
+  Interval.fromDateTimes(startTime, endTime)
+    .splitBy({ minutes: 15 })
+    .map(interval => createTimeSlot(interval));
 
 describe("createDayTimeSlots", () => {
   it("should return an array of timeslots", () => {
