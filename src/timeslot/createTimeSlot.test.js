@@ -1,10 +1,13 @@
 import createTimeSlot from "./createTimeSlot";
 import moment from "moment";
+import { DateTime, Interval } from "luxon";
 
-describe.only("createTimeSlot", () => {
+describe("createTimeSlot", () => {
   it("should have time (luxon intervel) and available (true) properties", () => {
-    const jeudi = moment({ year: 2018, month: 4, day: 24, hour: 12 });
-
+    const jeudi = Interval.after(
+      { year: 2018, month: 4, day: 24, hour: 12 },
+      { minutes: 15 }
+    );
     const expected = {
       available: true,
       time: jeudi
@@ -23,8 +26,8 @@ describe.only("createTimeSlot", () => {
 
 const createDayTimeSlots = (startTime, endTime) => {
   const arrayTime = [];
-  for (let t = startTime; t < endTime; t.add(15, "minutes")) {
-    arrayTime.push(createTimeSlot(t.clone()));
+  for (let t = startTime; t < endTime; t = t.plus({ minutes: 15 })) {
+    arrayTime.push(createTimeSlot(Interval.after(t, { minutes: 15 })));
   }
   return arrayTime;
 };
@@ -34,77 +37,48 @@ describe("createDayTimeSlots", () => {
     const expected = [
       {
         available: true,
-        time: moment({
-          day: 23,
-          month: 4,
-          hour: 14,
-          minute: 0,
-          year: 2018
-        })
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12 },
+          { minutes: 15 }
+        )
       },
       {
         available: true,
-        time: moment({
-          day: 23,
-          month: 4,
-          hour: 14,
-          minute: 15,
-          year: 2018
-        })
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12, minutes: 15 },
+          { minutes: 15 }
+        )
       },
       {
         available: true,
-        time: moment({
-          day: 23,
-          month: 4,
-          hour: 14,
-          minute: 30,
-          year: 2018
-        })
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12, minutes: 30 },
+          { minutes: 15 }
+        )
       },
       {
         available: true,
-        time: moment({
-          day: 23,
-          month: 4,
-          hour: 14,
-          minute: 45,
-          year: 2018
-        })
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12, minutes: 45 },
+          { minutes: 15 }
+        )
       }
     ];
 
-    const startTime = moment({
-      day: 23,
+    const startTime = DateTime.fromObject({
+      day: 24,
       month: 4,
-      hour: 14,
+      hour: 12,
       minute: 0,
       year: 2018
     });
-    const endTime = moment({
-      day: 23,
+    const endTime = DateTime.fromObject({
+      day: 24,
       month: 4,
-      hour: 15,
+      hour: 13,
       minute: 0,
       year: 2018
     });
     expect(createDayTimeSlots(startTime, endTime)).toEqual(expected);
   });
 });
-
-// describe("setDayTimeSlotsAvaibilities", () => {
-//   it("check if a timeSlot is available according to a bookings array", () => {
-//     const bookings = [
-//       {
-//         startTime: moment({
-//           day: 23,
-//           month: 4,
-//           hour: 15,
-//           minute: 20,
-//           year: 2018
-//         }),
-//         duration :
-//       }
-//     ];
-//   });
-// });
