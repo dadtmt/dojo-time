@@ -79,3 +79,61 @@ describe("createDayTimeSlots", () => {
     expect(createDayTimeSlots(startTime, endTime)).toEqual(expected);
   });
 });
+
+const checkTimeSlotAvaibility = () => null;
+
+const bookings = [
+  Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 12, minutes: 33 },
+    { minutes: 40 }
+  ),
+  Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 13, minutes: 40 },
+    { minutes: 10 }
+  ),
+  Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 14, minutes: 50 },
+    { minutes: 25 }
+  )
+];
+
+// Start 13h15 End 13h30
+
+const availableTimeSlot = {
+  time: Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 13, minutes: 15 },
+    { minutes: 15 }
+  ),
+  available: true
+};
+
+// Start 13h30 End 13h45
+
+const unavailableTimeSlot = {
+  time: Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 13, minutes: 15 },
+    { minutes: 15 }
+  ),
+  available: true
+};
+
+const expectedForUnavailableTimeSlot = {
+  time: Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 13, minutes: 15 },
+    { minutes: 15 }
+  ),
+  available: false
+};
+
+describe("checkTimeSlotAvaibility", () => {
+  it("should set available to false if timeslot overlaps a booking interval", () => {
+    expect(checkTimeSlotAvaibility(unavailableTimeSlot, bookings)).toEqual(
+      expectedForUnavailableTimeSlot
+    );
+  });
+  it("should set available to true if timeslot not overlapping a booking interval", () => {
+    expect(checkTimeSlotAvaibility(availableTimeSlot, bookings)).toEqual(
+      availableTimeSlot
+    );
+  });
+});
