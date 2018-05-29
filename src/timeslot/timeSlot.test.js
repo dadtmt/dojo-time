@@ -1,6 +1,10 @@
-import createTimeSlot from "./createTimeSlot";
-import moment from "moment";
 import { DateTime, Interval } from "luxon";
+
+import {
+  createTimeSlot,
+  createDayTimeSlots,
+  checkTimeSlotAvaibility
+} from "./timeSlot";
 
 describe("createTimeSlot", () => {
   it("should have time (luxon intervel) and available (true) properties", () => {
@@ -23,11 +27,6 @@ describe("createTimeSlot", () => {
     expect(createTimeSlot("vendredi 23 mai 12H")).toEqual(vendrediExpected);
   });
 });
-
-const createDayTimeSlots = (startTime, endTime) =>
-  Interval.fromDateTimes(startTime, endTime)
-    .splitBy({ minutes: 15 })
-    .map(interval => createTimeSlot(interval));
 
 describe("createDayTimeSlots", () => {
   it("should return an array of timeslots", () => {
@@ -80,8 +79,6 @@ describe("createDayTimeSlots", () => {
   });
 });
 
-const checkTimeSlotAvaibility = () => null;
-
 const bookings = [
   Interval.after(
     { year: 2018, month: 4, day: 24, hour: 12, minutes: 33 },
@@ -111,7 +108,7 @@ const availableTimeSlot = {
 
 const unavailableTimeSlot = {
   time: Interval.after(
-    { year: 2018, month: 4, day: 24, hour: 13, minutes: 15 },
+    { year: 2018, month: 4, day: 24, hour: 13, minutes: 30 },
     { minutes: 15 }
   ),
   available: true
@@ -119,14 +116,14 @@ const unavailableTimeSlot = {
 
 const expectedForUnavailableTimeSlot = {
   time: Interval.after(
-    { year: 2018, month: 4, day: 24, hour: 13, minutes: 15 },
+    { year: 2018, month: 4, day: 24, hour: 13, minutes: 30 },
     { minutes: 15 }
   ),
   available: false
 };
 
 describe("checkTimeSlotAvaibility", () => {
-  it("should set available to false if timeslot overlaps a booking interval", () => {
+  it.only("should set available to false if timeslot overlaps a booking interval", () => {
     expect(checkTimeSlotAvaibility(unavailableTimeSlot, bookings)).toEqual(
       expectedForUnavailableTimeSlot
     );
