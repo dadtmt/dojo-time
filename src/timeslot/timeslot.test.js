@@ -123,7 +123,7 @@ const expectedForUnavailableTimeSlot = {
 };
 
 describe("checkTimeSlotAvaibility", () => {
-  it("should set available to false if timeslot overlaps a booking interval", () => {
+  it.only("should set available to false if timeslot overlaps a booking interval", () => {
     expect(checkTimeSlotAvaibility(unavailableTimeSlot, bookings)).toEqual(
       expectedForUnavailableTimeSlot
     );
@@ -132,5 +132,63 @@ describe("checkTimeSlotAvaibility", () => {
     expect(checkTimeSlotAvaibility(availableTimeSlot, bookings)).toEqual(
       availableTimeSlot
     );
+  });
+});
+
+const checkTimeSlotsAvaibility = (timeSlots, bookings) =>
+  timeSlots.map(timeSlot => checkTimeSlotAvaibility(timeSlot, bookings));
+// check many timeslots
+
+describe("checkTimeSlotsAvaibility", () => {
+  it("should return timeslots with available true or false depending on bookings", () => {
+    const dayTimeSlots = createDayTimeSlots(
+      DateTime.fromObject({
+        day: 24,
+        month: 4,
+        hour: 12,
+        minute: 0,
+        year: 2018
+      }),
+      DateTime.fromObject({
+        day: 24,
+        month: 4,
+        hour: 13,
+        minute: 0,
+        year: 2018
+      })
+    );
+
+    const expected = [
+      {
+        available: true,
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12 },
+          { minutes: 15 }
+        )
+      },
+      {
+        available: true,
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12, minutes: 15 },
+          { minutes: 15 }
+        )
+      },
+      {
+        available: false,
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12, minutes: 30 },
+          { minutes: 15 }
+        )
+      },
+      {
+        available: false,
+        time: Interval.after(
+          { year: 2018, month: 4, day: 24, hour: 12, minutes: 45 },
+          { minutes: 15 }
+        )
+      }
+    ];
+
+    expect(checkTimeSlotsAvaibility(dayTimeSlots, bookings)).toEqual(expected);
   });
 });
