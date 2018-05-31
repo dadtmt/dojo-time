@@ -3,7 +3,8 @@ import { DateTime, Interval } from "luxon";
 import {
   createDayTimeSlots,
   checkTimeSlotAvaibility,
-  createTimeSlot
+  createTimeSlot,
+  checkTimeSlotsAvaibility
 } from "./timeslot";
 
 describe("createTimeSlot", () => {
@@ -104,6 +105,28 @@ const availableTimeSlot = {
   available: true
 };
 
+// Start 14h30 End 14h45
+
+const unavailableTimeSlotDuration = {
+  time: Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 14, minutes: 30 },
+    { minutes: 15 }
+  ),
+  available: true
+};
+
+const expectedUnavailableTimeSlotDuration = {
+  time: Interval.after(
+    { year: 2018, month: 4, day: 24, hour: 14, minutes: 30 },
+    { minutes: 15 }
+  ),
+  available: false
+};
+
+const duration = {
+  minutes: 25
+};
+
 // Start 13h30 End 13h45
 
 const unavailableTimeSlot = {
@@ -123,21 +146,22 @@ const expectedForUnavailableTimeSlot = {
 };
 
 describe("checkTimeSlotAvaibility", () => {
-  it.only("should set available to false if timeslot overlaps a booking interval", () => {
-    expect(checkTimeSlotAvaibility(unavailableTimeSlot, bookings)).toEqual(
-      expectedForUnavailableTimeSlot
-    );
+  it("should set available to false if timeslot overlaps a booking interval", () => {
+    expect(
+      checkTimeSlotAvaibility(unavailableTimeSlot, bookings, duration)
+    ).toEqual(expectedForUnavailableTimeSlot);
   });
   it("should set available to true if timeslot not overlapping a booking interval", () => {
-    expect(checkTimeSlotAvaibility(availableTimeSlot, bookings)).toEqual(
-      availableTimeSlot
-    );
+    expect(
+      checkTimeSlotAvaibility(availableTimeSlot, bookings, duration)
+    ).toEqual(availableTimeSlot);
+  });
+  it("should set available to true if timeslot not overlapping a booking interval", () => {
+    expect(
+      checkTimeSlotAvaibility(unavailableTimeSlotDuration, bookings, duration)
+    ).toEqual(expectedUnavailableTimeSlotDuration);
   });
 });
-
-const checkTimeSlotsAvaibility = (timeSlots, bookings) =>
-  timeSlots.map(timeSlot => checkTimeSlotAvaibility(timeSlot, bookings));
-// check many timeslots
 
 describe("checkTimeSlotsAvaibility", () => {
   it("should return timeslots with available true or false depending on bookings", () => {
@@ -167,7 +191,7 @@ describe("checkTimeSlotsAvaibility", () => {
         )
       },
       {
-        available: true,
+        available: false,
         time: Interval.after(
           { year: 2018, month: 4, day: 24, hour: 12, minutes: 15 },
           { minutes: 15 }
@@ -189,6 +213,8 @@ describe("checkTimeSlotsAvaibility", () => {
       }
     ];
 
-    expect(checkTimeSlotsAvaibility(dayTimeSlots, bookings)).toEqual(expected);
+    expect(checkTimeSlotsAvaibility(dayTimeSlots, bookings, duration)).toEqual(
+      expected
+    );
   });
 });

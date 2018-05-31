@@ -10,11 +10,17 @@ export const createDayTimeSlots = (startTime, endTime) =>
     .splitBy({ minutes: 15 })
     .map(interval => createTimeSlot(interval));
 
-export const checkTimeSlotAvaibility = (timeslot, bookings) => {
+export const checkTimeSlotAvaibility = (timeslot, bookings, duration) => {
   bookings.forEach(booking => {
-    if (booking.overlaps(timeslot.time)) {
+    if (booking.overlaps(Interval.after(timeslot.time.start, duration))) {
       timeslot.available = false;
     }
   });
+
   return timeslot;
 };
+
+export const checkTimeSlotsAvaibility = (timeSlots, bookings, duration) =>
+  timeSlots.map(timeSlot =>
+    checkTimeSlotAvaibility(timeSlot, bookings, duration)
+  );
